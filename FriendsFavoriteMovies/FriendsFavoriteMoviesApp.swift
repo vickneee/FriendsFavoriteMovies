@@ -14,17 +14,6 @@ struct FriendsFavoriteMoviesApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Friend.self, Movie.self]) { result in
-            guard let container = try? result.get() else { return }
-            let context = container.mainContext
-
-            // Only seed if the store is empty
-            let friendCount = (try? context.fetchCount(FetchDescriptor<Friend>())) ?? 0
-            guard friendCount == 0 else { return }
-
-            for friend in Friend.sampleData { context.insert(friend) }
-            for movie in Movie.sampleData { context.insert(movie) }
-            try? context.save()
-        }
+        .modelContainer(for: [Friend.self, Movie.self])
     }
 }
