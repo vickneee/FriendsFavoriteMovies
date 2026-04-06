@@ -26,5 +26,4 @@ class Friend {
         Friend(name: "Arya Stark"),
         Friend(name: "Daenerys Targaryen")
         ]
-
 }
