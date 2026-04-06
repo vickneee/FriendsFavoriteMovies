@@ -6,13 +6,52 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FriendDetail: View {
+    @Bindable var friend: Friend
+    let isNew: Bool
+    
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    
+    init(friend: Friend, isNew: Bool = false) {
+        self.friend = friend
+        self.isNew = isNew
+    }
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Form {
+            TextField("Name", text: $friend.name)
+                .autocorrectionDisabled()
+        }
+        .navigationTitle(isNew ? "New Friend" : "Friend")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            if isNew {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        context.delete(friend)
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    FriendDetail()
+    NavigationStack {
+        if let friend = SampleData.shared.friend {
+            FriendDetail(friend: friend)
+        } else {
+            // Fallback friend for preview if SampleData has no friend
+            FriendDetail(friend: Friend(name: "Preview Friend"))
+        }
+    }
 }
