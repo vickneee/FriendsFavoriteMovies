@@ -12,7 +12,7 @@ import SwiftData
 final class Movie {
     var title: String
     var releaseDate: Date
-
+    @Relationship(inverse: \Friend.favoriteMovie) var favoritedBy: [Friend] = []
 
     init(title: String, releaseDate: Date) {
         self.title = title

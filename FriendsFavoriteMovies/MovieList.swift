@@ -9,19 +9,36 @@ import SwiftUI
 import SwiftData
 
 struct MovieList: View {
-    @Query(sort: \Movie.title) private var movies: [Movie]
+    @Query private var movies: [Movie]
     @Environment(\.modelContext) private var context
     @State private var newMovie: Movie?
     
+    init(titleFilter: String = "") {
+        let predicate = #Predicate<Movie> { movie in
+            titleFilter.isEmpty || movie.title.localizedStandardContains(titleFilter)
+        }
+        
+        _movies = Query(filter: predicate, sort: \Movie.title)
+    }
+    
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(movies) { movie in
-                    NavigationLink(movie.title) {
-                        MovieDetail(movie: movie)
+        NavigationStack {
+            Group {
+                if !movies.isEmpty {
+                    List {
+                        ForEach(movies) { movie in
+                            NavigationLink(movie.title) {
+                                MovieDetail(movie: movie)
+                            }
+                        }
+                        .onDelete { indexSet in
+                            deleteMovies(indexes: indexSet)
+                        }
                     }
+                    
+                } else {
+                    ContentUnavailableView("Add Movies", systemImage: "film.stack")
                 }
-                .onDelete(perform: deleteMovies(indexes:))
             }
             .navigationTitle("Movies")
             .toolbar {
@@ -36,11 +53,8 @@ struct MovieList: View {
                 NavigationStack {
                     MovieDetail(movie: movie, isNew: true)
                 }
+                .interactiveDismissDisabled()
             }
-        } detail: {
-            Text("Select a movie")
-                .navigationTitle("Movie")
-                .navigationBarTitleDisplayMode(.inline)
         }
     }
     
@@ -58,6 +72,15 @@ struct MovieList: View {
 }
 
 #Preview {
-    MovieList()
-        .modelContainer(SampleData.shared.modelContainer)
+    NavigationStack {
+        MovieList()
+            .modelContainer(SampleData.shared.modelContainer)
+    }
+}
+
+#Preview("Filtered") {
+    NavigationStack {
+        MovieList(titleFilter: "tr")
+            .modelContainer(SampleData.shared.modelContainer)
+    }
 }

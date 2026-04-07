@@ -6,13 +6,24 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct FilteredMovieList: View {
+    @State private var searchText = ""
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationSplitView {
+            MovieList(titleFilter: searchText)
+                .searchable(text: $searchText)
+        } detail: {
+            Text("Select a movie")
+                .navigationTitle("Movie")
+                .navigationBarTitleDisplayMode(.inline)
+        }
     }
 }
 
 #Preview {
     FilteredMovieList()
+        .modelContainer(SampleData.shared.modelContainer)
 }
