@@ -20,11 +20,24 @@ struct MovieDetail: View {
         self.isNew = isNew
     }
     
+    var sortedFriends: [Friend] {
+        let friends = Array(movie.favoritedBy)
+        return friends.sorted { $0.name < $1.name }
+    }
+    
     var body: some View {
         Form {
             TextField("Movie title", text: $movie.title)
             
             DatePicker("Release date", selection: $movie.releaseDate, displayedComponents: .date)
+            
+            if !$movie.favoritedBy.isEmpty {
+                Section("Favorited by") {
+                    ForEach(sortedFriends) { friend in
+                        Text(friend.name)
+                    }
+                }
+            }
         }
         .navigationTitle(isNew ? "New Movie" : "Movie")
         .navigationBarTitleDisplayMode(.inline)
@@ -48,31 +61,17 @@ struct MovieDetail: View {
     }
 }
 
-#Preview("Movie Detail - Sample or Fallback") {
-    NavigationStack {
-        if let sample = SampleData.shared.movie {
-            MovieDetail(movie: sample)
-        } else {
-            // Fallback sample movie for preview purposes
-            let fallback = Movie(title: "Preview Movie", releaseDate: .now)
-            MovieDetail(movie: fallback, isNew: true)
-        }
-    }
-}
-
-#Preview("Movie Detail - Fresh Instance") {
-    NavigationStack {
-        MovieDetail(movie: Movie(title: "Another Movie", releaseDate: .now))
-    }
-}
 #Preview {
     NavigationStack {
-        if let movie = SampleData.shared.movie {
-            MovieDetail(movie: movie)
-        } else {
-            // Fallback sample for preview when SampleData has no movie
-            MovieDetail(movie: Movie(title: "Preview Movie", releaseDate: .now), isNew: true)
-        }
+        MovieDetail(movie: SampleData.shared.movie!)
     }
+    .modelContainer(SampleData.shared.modelContainer)
+}
+
+#Preview("New Movie") {
+    NavigationStack {
+        MovieDetail(movie: SampleData.shared.movie!, isNew: true)
+    }
+    .modelContainer(SampleData.shared.modelContainer)
 }
 
